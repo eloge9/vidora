@@ -266,17 +266,30 @@ public class VideoScanner {
         File[] fichiers = dossier.listFiles();
         
         if (fichiers == null) {
+            System.out.println("Aucun fichier trouvé dans : " + dossier.getAbsolutePath());
             return;
         }
         
+        System.out.println("Scan du dossier : " + dossier.getAbsolutePath() + " (" + fichiers.length + " éléments)");
+        
         for (File fichier : fichiers) {
             if (fichier.isDirectory()) {
+                System.out.println("-> Sous-dossier trouvé : " + fichier.getName());
                 // Scanner récursivement les sous-dossiers
                 scannerRecursif(fichier, videos);
-            } else if (fichier.isFile() && estVideo(fichier)) {
-                Video video = creerVideoDepuisFichier(fichier);
-                if (video != null) {
-                    videos.add(video);
+            } else if (fichier.isFile()) {
+                String nomFichier = fichier.getName().toLowerCase();
+                System.out.println("-> Fichier trouvé : " + nomFichier);
+                
+                if (estVideo(fichier)) {
+                    System.out.println("   *** VIDÉO DÉTECTÉE : " + fichier.getName());
+                    Video video = creerVideoDepuisFichier(fichier);
+                    if (video != null) {
+                        videos.add(video);
+                        System.out.println("   *** VIDÉO AJOUTÉE : " + video.getTitre());
+                    } else {
+                        System.out.println("   *** VIDÉO IGNOREE (existe déjà ou erreur)");
+                    }
                 }
             }
         }
@@ -284,13 +297,16 @@ public class VideoScanner {
     
     private boolean estVideo(File fichier) {
         String nomFichier = fichier.getName().toLowerCase();
+        System.out.println("   Test extension pour : " + nomFichier);
         
         for (String extension : EXTENSIONS_VIDEO) {
             if (nomFichier.endsWith(extension)) {
+                System.out.println("   -> Extension reconnue : " + extension);
                 return true;
             }
         }
         
+        System.out.println("   -> Extension NON reconnue");
         return false;
     }
     
